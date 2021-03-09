@@ -1,16 +1,16 @@
 package fr.heliena.billetterie;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.heliena.billetterie.model.Billet;
 import fr.heliena.billetterie.repository.BilletsRepository;
 import fr.heliena.billetterie.utils.IntegrationTest;
 import io.restassured.RestAssured;
-import org.hamcrest.Matcher;
+import io.restassured.http.ContentType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.server.LocalServerPort;
 
-import java.util.Map;
 import java.util.UUID;
 
 import static io.restassured.RestAssured.given;
@@ -28,6 +28,10 @@ public class BilletterieIntegrationTest {
 
     @Autowired
     BilletsRepository billetRepository;
+
+    //avoir objet java en string pour json
+    @Autowired
+    ObjectMapper mapper;
 
     @BeforeEach
     void setup() {
@@ -80,8 +84,8 @@ public class BilletterieIntegrationTest {
         given() // équivaut à RestAssured.given() mais importé plus haut donc pas beoin
                 .basePath("/billets")
         .when()
-        .get() // on définit un id random donc sera pas en base
-                .then()
+                .get()
+        .then()
                 .statusCode(200)
                 .body("size()", equalTo(2));
     }
@@ -100,9 +104,65 @@ public class BilletterieIntegrationTest {
         given() // équivaut à RestAssured.given() mais importé plus haut donc pas besoin
                 .basePath("/billets/limitPrice")
         .when()
-                .get("60") // on définit un id random donc sera pas en base
+                .get("60")
         .then()
                 .statusCode(200)
                 .body("size()", equalTo(1));
     }
+
+    @Test
+    //throws Exception car mapper.writeValueAsString peut renvoyer des exceptions
+    void shouldUpdateABillet() throws Exception {
+        Billet billet = new Billet(UUID.randomUUID(), "vielles charrues", 70.0, 100, 50);
+        billetRepository.save(billet);
+
+        String body = mapper.writeValueAsString(new Billet(billet.getId(), billet.getName(), 80.0, billet.getTotalQuantity(), billet.getRemainingQuantity()));
+
+        given() // équivaut à RestAssured.given() mais importé plus haut donc pas besoin
+                .basePath("/billets")
+                //dire que body est json
+                .contentType(ContentType.JSON)
+                .body(body)
+        .when()
+                .put(billet.getId().toString())
+        .then()
+                .statusCode(200)
+                .body("id", equalTo(billet.getId().toString())) //ou Matchers.equalTo si pas import
+                .body("name", equalTo("vielles charrues"))
+                .body("price", equalTo(80.0f)) //le f indique float, car double marche pas avec RestAssured
+                .body("totalQuantity", equalTo(100))
+                .body("remainingQuantity", equalTo(50));
+    }
+
+    @Test
+    void shouldCreateABillet() throws Exception {
+        //test que quand fait un post on a retour 201 (ca veut dire created) et qu'on a un header location au bon format
+        Billet billet = new Billet(UUID.randomUUID(), "vielles charrues", 70.0, 100, 50);
+        String body = mapper.writeValueAsString(billet);
+
+        given()
+                .basePath("/billets")
+                .contentType(ContentType.JSON)
+                .body(body)
+        .when()
+                .post()
+        .then()
+                .statusCode(201)
+                // un header avec une clé "location" avec valeur regex de l'id ([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})
+                //on vérifie format du header location
+                .header("Location", matchesRegex("http://localhost:" + port + "/billets/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"));
+        // TODO: récupérer url qui est dans le header location, faire le get (appel http) pour obtenir le billet,
+        //TODO: et faire les assertions sur les caractéristiques du billet
+    }
+
+    @Test
+    void shouldDeleteABilletAndReturnANotFound() {
+        given()
+                .basePath("/billets")
+        .when()
+                .delete(UUID.randomUUID().toString())
+        .then()
+                .statusCode(404);
+    }
+
 }

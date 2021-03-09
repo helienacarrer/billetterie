@@ -7,7 +7,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
@@ -76,9 +78,38 @@ public class BilletController {
 //    }
 
     @GetMapping("/limitPrice/{priceLimit}")
-    public ResponseEntity<List<Billet>> FindABilletByPrice(@PathVariable double priceLimit) {
+    public ResponseEntity<List<Billet>> findABilletByPrice(@PathVariable double priceLimit) {
         List<Billet> result = billetsService.findABilletByPrice(priceLimit);
         return ResponseEntity.ok(result);
+    }
+
+    @PostMapping
+    public ResponseEntity<Void> addOneBillet(@RequestBody Billet billetToAdd) {
+        Billet billet = this.billetsService.addOneBillet(billetToAdd);
+        // créer URI qui est une url de la ressource qu'on vient de créer
+        //builder = on donne toutes infos pour créer URI grace au toUri
+        URI location = ServletUriComponentsBuilder
+                //builder initialisé avec la requete post qu'on vient de faire
+                .fromCurrentRequest()
+                //path est id
+                .path("/{id}")
+                //remplace id par celui du billet
+                .buildAndExpand(billet.getId())
+                //construit URI
+                .toUri();
+        //created:créer une reponse entity avec le statut created + met un header dont la clé est location avec url de la ressource qu'on vient de créer
+        return ResponseEntity.created(location).build();
+    }
+
+    @PutMapping("/{id}")
+    public Billet updateOneBillet(@PathVariable UUID id, @RequestBody Billet billetToUpdate) {
+        return this.billetsService.updateOneBillet(id, billetToUpdate);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteOneBillet(@PathVariable UUID id) {
+        this.billetsService.deleteOneBillet(id);
+        return ResponseEntity.noContent().build();
     }
 
 }
