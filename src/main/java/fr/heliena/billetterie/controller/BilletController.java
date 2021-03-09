@@ -9,9 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/billets")
@@ -64,7 +62,7 @@ public class BilletController {
 //        return ResponseEntity.notFound().build();
 //    }
 
-     /////////////////// facon avec une réponse entity facon 2
+    /////////////////// facon avec une réponse entity facon 2
 //    @GetMapping("/{id}")
 //    public ResponseEntity<Billet> getBilletById(@PathVariable UUID id) {
 //        Optional<Billet> oBillet = this.billetsService.getBilletById(id);
@@ -77,4 +75,11 @@ public class BilletController {
 //        return responseEntity;
 //    }
 
+    @GetMapping("/limitPrice/{priceLimit}")
+    public ResponseEntity<List<Billet>> FindABilletByPrice(@PathVariable double priceLimit) {
+        List<Billet> result = billetsService.findABilletByPrice(priceLimit);
+        return ResponseEntity.ok(result);
     }
+
+}
+

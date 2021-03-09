@@ -4,11 +4,13 @@ import fr.heliena.billetterie.model.Billet;
 import fr.heliena.billetterie.repository.BilletsRepository;
 import fr.heliena.billetterie.utils.IntegrationTest;
 import io.restassured.RestAssured;
+import org.hamcrest.Matcher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.server.LocalServerPort;
 
+import java.util.Map;
 import java.util.UUID;
 
 import static io.restassured.RestAssured.given;
@@ -82,5 +84,25 @@ public class BilletterieIntegrationTest {
                 .then()
                 .statusCode(200)
                 .body("size()", equalTo(2));
+    }
+
+    @Test
+    void shouldGetABilletWithLimitPrice() {
+
+        // créer 2 billets car bdd vide
+        Billet billet1 = new Billet(UUID.randomUUID(), "vielles charrues", 70.0, 100, 50);
+        Billet billet2 = new Billet(UUID.randomUUID(), "roi Arthur", 50.0, 200, 50);
+
+        //save ce billet dans repo
+        billetRepository.save(billet1); //sur instance créée plus haut
+        billetRepository.save(billet2);
+
+        given() // équivaut à RestAssured.given() mais importé plus haut donc pas besoin
+                .basePath("/billets/limitPrice")
+        .when()
+                .get("60") // on définit un id random donc sera pas en base
+        .then()
+                .statusCode(200)
+                .body("size()", equalTo(1));
     }
 }

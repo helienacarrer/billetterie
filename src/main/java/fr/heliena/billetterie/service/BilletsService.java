@@ -4,9 +4,7 @@ package fr.heliena.billetterie.service;
 import fr.heliena.billetterie.model.Billet;
 import fr.heliena.billetterie.repository.BilletsRepository;
 import lombok.Data;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,6 +26,10 @@ public class BilletsService {
 
     public List<Billet> getAllBillets() {
         return billetsRepository.findAll();
+    }
+
+    public List<Billet> findABilletByPrice(double priceLimit) {
+        return billetsRepository.findABilletByPrice(priceLimit);
     }
 
 }
