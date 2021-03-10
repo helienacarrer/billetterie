@@ -5,12 +5,9 @@ import fr.heliena.billetterie.exception.BilletNotFoundException;
 import fr.heliena.billetterie.model.Billet;
 import fr.heliena.billetterie.repository.BilletsRepository;
 import lombok.Data;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Data
@@ -23,8 +20,10 @@ public class BilletsService {
         this.billetsRepository = billetsRepository;
     }
 
-    public Optional<Billet> getBilletById(final UUID id) {
-        return billetsRepository.findById(id);
+    public Billet getBilletById(final UUID id) {
+        return billetsRepository.findById(id)
+                //orElseThrow revoie soit la valeur de l'optional soit balance mon exception
+                .orElseThrow(() -> new BilletNotFoundException(id));
     }
 
     public List<Billet> getAllBillets() {
@@ -51,7 +50,6 @@ public class BilletsService {
             throw new BilletNotFoundException(id);
         }
         this.billetsRepository.deleteById(id);
-
     }
 
 }

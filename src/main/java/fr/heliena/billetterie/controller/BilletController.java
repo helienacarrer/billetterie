@@ -3,10 +3,8 @@ package fr.heliena.billetterie.controller;
 
 import fr.heliena.billetterie.model.Billet;
 import fr.heliena.billetterie.service.BilletsService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
@@ -43,9 +41,9 @@ public class BilletController {
     ////////////////////////////////////// getAll
     ///////////////// facon avec une exception
     @GetMapping("/{id}")
-    public Billet getBilletById(@PathVariable UUID id) {
-        return this.billetsService.getBilletById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    public ResponseEntity<Billet> getBilletById(@PathVariable UUID id) {
+        Billet billet = this.billetsService.getBilletById(id);
+        return ResponseEntity.ok(billet);
     }
 
 

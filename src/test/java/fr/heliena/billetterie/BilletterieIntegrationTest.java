@@ -11,10 +11,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.server.LocalServerPort;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.matchesRegex;
+import static org.junit.jupiter.api.Assertions.*;
 
 // annotation créée par moi-même (dans le package utils)
 // annoter toutes les classes de test d'intégration par ca
@@ -126,12 +129,23 @@ public class BilletterieIntegrationTest {
         .when()
                 .put(billet.getId().toString())
         .then()
+
+                //vérfifier la réponse http
                 .statusCode(200)
                 .body("id", equalTo(billet.getId().toString())) //ou Matchers.equalTo si pas import
                 .body("name", equalTo("vielles charrues"))
                 .body("price", equalTo(80.0f)) //le f indique float, car double marche pas avec RestAssured
                 .body("totalQuantity", equalTo(100))
                 .body("remainingQuantity", equalTo(50));
+
+        //vérifier que le billet est en base
+        Optional<Billet> oSavedBillet = billetRepository.findById(billet.getId());
+        assertTrue(oSavedBillet.isPresent());
+
+        //vérifier les caract de ce nvau billet
+        Billet savedBillet = oSavedBillet.get();
+        assertEquals(savedBillet.getName(), "vielles charrues");
+        assertEquals(savedBillet.getPrice(), 80.0);
     }
 
     @Test
@@ -163,6 +177,25 @@ public class BilletterieIntegrationTest {
                 .delete(UUID.randomUUID().toString())
         .then()
                 .statusCode(404);
+    }
+
+
+    @Test
+    void shouldDeleteABilletAndReturnAnEmptyContent() {
+        // créer un billet car bdd vide
+        Billet billet = new Billet(UUID.randomUUID(), "vielles charrues", 70.0, 100, 50);
+        //save ce billet dans repo
+        billetRepository.save(billet); //sur instance créée plus haut
+
+        given()
+                .basePath("/billets")
+        .when()
+                .delete(billet.getId().toString())
+        .then()
+                .statusCode(204);
+
+        //vérifie que getId renvoie rien vu qu'on vient de le supprimer
+        assertFalse(billetRepository.existsById(billet.getId()));
     }
 
 }
