@@ -15,8 +15,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.matchesRegex;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 // annotation créée par moi-même (dans le package utils)
@@ -154,7 +153,7 @@ public class BilletterieIntegrationTest {
         Billet billet = new Billet(UUID.randomUUID(), "vielles charrues", 70.0, 100, 50);
         String body = mapper.writeValueAsString(billet);
 
-        given()
+        String location = given()
                 .basePath("/billets")
                 .contentType(ContentType.JSON)
                 .body(body)
@@ -164,9 +163,24 @@ public class BilletterieIntegrationTest {
                 .statusCode(201)
                 // un header avec une clé "location" avec valeur regex de l'id ([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})
                 //on vérifie format du header location
-                .header("Location", matchesRegex("http://localhost:" + port + "/billets/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"));
-        // TODO: récupérer url qui est dans le header location, faire le get (appel http) pour obtenir le billet,
-        //TODO: et faire les assertions sur les caractéristiques du billet
+                .header("Location", matchesRegex("http://localhost:" + port + "/billets/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"))
+                // on extrait une valeur de la réponse, c'est la valeur associée à la clé location dans le header
+                .extract()
+                .header("Location");
+
+        //tester que quand on get cet uri, on a statut ok bon body
+        given()
+                //pas path car aussi http, localhost...donc uri ici
+                .baseUri(location)
+        .when()
+                .get()
+        .then()
+                .statusCode(200)
+                .body("id", notNullValue()) //ou Matchers.equalTo si pas import
+                .body("name", equalTo("vielles charrues"))
+                .body("price", equalTo(70.0f)) //le f indique float, car double marche pas avec RestAssured
+                .body("totalQuantity", equalTo(100))
+                .body("remainingQuantity", equalTo(50));
     }
 
     @Test
