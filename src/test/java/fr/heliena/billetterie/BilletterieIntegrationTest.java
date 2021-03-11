@@ -184,6 +184,23 @@ public class BilletterieIntegrationTest {
     }
 
     @Test
+    void shouldNotCreateABilletIfValidationFails() throws Exception {
+        // tester que valid marche pas si met nom vide
+        Billet billet = new Billet(UUID.randomUUID(), "", 70.0, 100, 50);
+        String body = mapper.writeValueAsString(billet);
+
+        given()
+                .basePath("/billets")
+                .contentType(ContentType.JSON)
+                .body(body)
+        .when()
+                .post()
+        .then()
+                //quad valid fonctionne pas, ca return bad request
+                .statusCode(400);
+    }
+
+    @Test
     void shouldDeleteABilletAndReturnANotFound() {
         given()
                 .basePath("/billets")

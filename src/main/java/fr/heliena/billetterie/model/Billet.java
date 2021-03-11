@@ -4,9 +4,13 @@ package fr.heliena.billetterie.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
 import java.util.UUID;
 
 @Entity //dire que c'est une table
@@ -20,15 +24,19 @@ public class Billet {
     @Id
     private UUID id;
 
+    @NotBlank
     @Column(name = "nom")
     private String name;
 
+    @Min(0)
     @Column(name = "prix")
     private Double price;
 
+    @Min(0)
     @Column(name = "quantite_totale")
     private int totalQuantity;
 
+    @Min(0)
     @Column(name = "quantite_restante")
     private int remainingQuantity;
 

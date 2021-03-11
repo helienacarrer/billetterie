@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
 import java.util.UUID;
@@ -82,7 +83,7 @@ public class BilletController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> addOneBillet(@RequestBody Billet billetToAdd) {
+    public ResponseEntity<Void> addOneBillet(@Valid @RequestBody Billet billetToAdd) {
         Billet billet = this.billetsService.addOneBillet(billetToAdd);
         // créer URI qui est une url de la ressource qu'on vient de créer
         //builder = on donne toutes infos pour créer URI grace au toUri
@@ -100,7 +101,7 @@ public class BilletController {
     }
 
     @PutMapping("/{id}")
-    public Billet updateOneBillet(@PathVariable UUID id, @RequestBody Billet billetToUpdate) {
+    public Billet updateOneBillet(@PathVariable UUID id, @Valid @RequestBody Billet billetToUpdate) {
         return this.billetsService.updateOneBillet(id, billetToUpdate);
     }
 
