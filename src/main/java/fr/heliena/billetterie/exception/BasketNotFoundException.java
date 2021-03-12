@@ -5,10 +5,10 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.UUID;
 
+
 @RequiredArgsConstructor //constructeur avec que les arg final
 @Getter
-public class BilletNotFoundException extends RuntimeException {
+public class BasketNotFoundException extends RuntimeException{
 
     private final UUID id;
-
 }
