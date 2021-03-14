@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 // annoter toutes les classes de test d'intégration par ca
 //@IntegrationTest va démarrer appli spring et écoute sur un port random
 @IntegrationTest
-public class BilletterieIntegrationTest {
+public class BilletIntegrationTest {
 
     // récupérer le port random grâce à l'annotation et le mettre dans variable port
     @LocalServerPort

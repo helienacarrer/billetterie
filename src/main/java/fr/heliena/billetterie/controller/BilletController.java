@@ -90,7 +90,7 @@ public class BilletController {
         URI location = ServletUriComponentsBuilder
                 //builder initialisé avec la requete post qu'on vient de faire
                 .fromCurrentRequest()
-                //path est id
+                //path est id en plus du path courant
                 .path("/{id}")
                 //remplace id par celui du billet
                 .buildAndExpand(billet.getId())
