@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository;
 import java.util.UUID;
 
 @Repository
-public interface BasketsRepository extends JpaRepository<Basket, UUID> {
+public interface BasketRepository extends JpaRepository<Basket, UUID> {
 }

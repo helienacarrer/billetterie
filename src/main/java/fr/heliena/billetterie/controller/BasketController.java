@@ -1,4 +1,4 @@
 package fr.heliena.billetterie.controller;
 
-public class BasketsController {
+public class BasketController {
 }

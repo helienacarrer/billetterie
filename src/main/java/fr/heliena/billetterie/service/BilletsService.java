@@ -5,20 +5,17 @@ import fr.heliena.billetterie.exception.BilletNotFoundException;
 import fr.heliena.billetterie.model.Billet;
 import fr.heliena.billetterie.repository.BilletsRepository;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
 
-@Data
 @Service
+@RequiredArgsConstructor //constructeur avec que les final
 public class BilletsService {
 
     private final BilletsRepository billetsRepository;
-
-    public BilletsService(BilletsRepository billetsRepository) {
-        this.billetsRepository = billetsRepository;
-    }
 
     public Billet getBilletById(final UUID id) {
         return billetsRepository.findById(id)
@@ -35,7 +32,7 @@ public class BilletsService {
     }
 
     public Billet addOneBillet(Billet billet) {
-        return this.billetsRepository.save(billet);
+        return billetsRepository.save(billet);
     }
 
     public Billet updateOneBillet(UUID id, Billet billetToUpdate) {
