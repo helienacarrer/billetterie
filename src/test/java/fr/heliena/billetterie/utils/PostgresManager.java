@@ -6,6 +6,8 @@ import org.springframework.test.context.TestExecutionListener;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
 
+
+//TestExecutionListener permet de faire des actions avant chaque test, après chaque...: lier spring au cycle de vie de nos tests
 public class PostgresManager implements TestExecutionListener {
     //PostgreSQLContainer fait le lien avec container  docker sur ma machine avec postgres dedans
     // déclarer variable POSTGRE_SQL_CONTAINER

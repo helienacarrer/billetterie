@@ -24,10 +24,12 @@ import static org.junit.jupiter.api.Assertions.*;
 @IntegrationTest
 public class BilletIntegrationTest {
 
-    // récupérer le port random grâce à l'annotation et le mettre dans variable port
+    //serveur a démarré sur un port random (dans IntegrationTest)
+    //injecte le port sur lequel a démarré le serveur
     @LocalServerPort
     int port;
 
+    //car dans tests on peut pas se faire injecter les composants dans constructeur, peut pas faire de constructeur
     @Autowired
     BilletsRepository billetRepository;
 
@@ -118,13 +120,13 @@ public class BilletIntegrationTest {
         Billet billet = new Billet(UUID.randomUUID(), "vielles charrues", 70.0, 100, 50);
         billetRepository.save(billet);
 
-        String body = mapper.writeValueAsString(new Billet(billet.getId(), billet.getName(), 80.0, billet.getTotalQuantity(), billet.getRemainingQuantity()));
+        String requestBody = mapper.writeValueAsString(new Billet(billet.getId(), billet.getName(), 80.0, billet.getTotalQuantity(), billet.getRemainingQuantity()));
 
         given() // équivaut à RestAssured.given() mais importé plus haut donc pas besoin
                 .basePath("/billets")
                 //dire que body est json
                 .contentType(ContentType.JSON)
-                .body(body)
+                .body(requestBody)
         .when()
                 .put(billet.getId().toString())
         .then()
