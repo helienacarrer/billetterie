@@ -1,16 +1,15 @@
 package fr.heliena.billetterie;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.heliena.billetterie.model.Billet;
 import fr.heliena.billetterie.repository.BilletsRepository;
 import fr.heliena.billetterie.utils.IntegrationTest;
-import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import org.junit.jupiter.api.BeforeEach;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.server.LocalServerPort;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -20,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 // annotation créée par moi-même (dans le package utils)
 // annoter toutes les classes de test d'intégration par ca
-//@IntegrationTest va démarrer appli spring et écoute sur un port random
+// @IntegrationTest va démarrer appli spring et écoute sur un port random
 @IntegrationTest
 public class BilletIntegrationTest {
 
@@ -33,19 +32,9 @@ public class BilletIntegrationTest {
     @Autowired
     BilletsRepository billetRepository;
 
-    //avoir objet java en string pour json
-    @Autowired
-    ObjectMapper mapper;
-
-    @BeforeEach
-    void setup() {
-        RestAssured.port = port; //RestAssured ira tjs taper sur ce port
-        RestAssured.enableLoggingOfRequestAndResponseIfValidationFails(); //si test échoue, RestAssured log tout
-    }
-
     @Test
     void shouldGetABilletByIdAndReturnANotFoundResponse() {
-        given() // équivaut à RestAssured.given() mais importé plus haut donc pas beoin
+        given() // équivaut à RestAssured.given() mais importé plus haut donc pas besoin
                 .basePath("/billets")
         .when()
                 .get(UUID.randomUUID().toString()) // on définit un id random donc sera pas en base
@@ -55,7 +44,6 @@ public class BilletIntegrationTest {
 
     @Test
     void shouldGetABilletByIdAndReturnABillet() {
-
         // créer un billet car bdd vide
         Billet billet = new Billet(UUID.randomUUID(), "vielles charrues", 70.0, 100, 50);
         //save ce billet dans repo
@@ -70,7 +58,7 @@ public class BilletIntegrationTest {
                 // id du body doit être égal à ce qu'il y a dans equalTo
                 .body("id", equalTo(billet.getId().toString())) //ou Matchers.equalTo si pas import
                 .body("name", equalTo("vielles charrues"))
-                .body("price", equalTo(70.0f)) //le f indique float, car double marche pas avec RestAssured
+                .body("price", equalTo(70.0)) //le f indique float, car double marche pas avec RestAssured
                 .body("totalQuantity", equalTo(100))
                 .body("remainingQuantity", equalTo(50));
     }
@@ -79,7 +67,7 @@ public class BilletIntegrationTest {
     void shouldGetAllBillets() {
         // créer 2 billets car bdd vide
         Billet billet1 = new Billet(UUID.randomUUID(), "vielles charrues", 70.0, 100, 50);
-        Billet billet2= new Billet(UUID.randomUUID(), "roi Arthur", 50.0, 200, 50);
+        Billet billet2 = new Billet(UUID.randomUUID(), "roi Arthur", 50.0, 200, 50);
 
         //save ce billet dans repo
         billetRepository.save(billet1); //sur instance créée plus haut
@@ -91,7 +79,23 @@ public class BilletIntegrationTest {
                 .get()
         .then()
                 .statusCode(200)
-                .body("size()", equalTo(2));
+                .body("size()", equalTo(2))
+                .body("$", hasItems(
+                        Matchers.<Map<String, Object>>allOf(
+                                hasEntry("id", billet1.getId().toString()),
+                                hasEntry("name", billet1.getName()),
+                                hasEntry("price", billet1.getPrice()),
+                                hasEntry("totalQuantity", billet1.getTotalQuantity()),
+                                hasEntry("remainingQuantity", billet1.getRemainingQuantity())
+                        ),
+                        Matchers.<Map<String, Object>>allOf(
+                                hasEntry("id", billet2.getId().toString()),
+                                hasEntry("name", billet2.getName()),
+                                hasEntry("price", billet2.getPrice()),
+                                hasEntry("totalQuantity", billet2.getTotalQuantity()),
+                                hasEntry("remainingQuantity", billet2.getRemainingQuantity())
+                        )
+                ));
     }
 
     @Test
@@ -116,11 +120,11 @@ public class BilletIntegrationTest {
 
     @Test
     //throws Exception car mapper.writeValueAsString peut renvoyer des exceptions
-    void shouldUpdateABillet() throws Exception {
+    void shouldUpdateABillet() {
         Billet billet = new Billet(UUID.randomUUID(), "vielles charrues", 70.0, 100, 50);
         billetRepository.save(billet);
 
-        String requestBody = mapper.writeValueAsString(new Billet(billet.getId(), billet.getName(), 80.0, billet.getTotalQuantity(), billet.getRemainingQuantity()));
+        Billet requestBody = new Billet(billet.getId(), billet.getName(), 80.0, billet.getTotalQuantity(), billet.getRemainingQuantity());
 
         given() // équivaut à RestAssured.given() mais importé plus haut donc pas besoin
                 .basePath("/billets")
@@ -135,7 +139,7 @@ public class BilletIntegrationTest {
                 .statusCode(200)
                 .body("id", equalTo(billet.getId().toString())) //ou Matchers.equalTo si pas import
                 .body("name", equalTo("vielles charrues"))
-                .body("price", equalTo(80.0f)) //le f indique float, car double marche pas avec RestAssured
+                .body("price", equalTo(80.0)) //le f indique float, car double marche pas avec RestAssured
                 .body("totalQuantity", equalTo(100))
                 .body("remainingQuantity", equalTo(50));
 
@@ -150,10 +154,9 @@ public class BilletIntegrationTest {
     }
 
     @Test
-    void shouldCreateABillet() throws Exception {
+    void shouldCreateABillet() {
         //test que quand fait un post on a retour 201 (ca veut dire created) et qu'on a un header location au bon format
-        Billet billet = new Billet(UUID.randomUUID(), "vielles charrues", 70.0, 100, 50);
-        String body = mapper.writeValueAsString(billet);
+        Billet body = new Billet(UUID.randomUUID(), "vielles charrues", 70.0, 100, 50);
 
         String location = given()
                 .basePath("/billets")
@@ -180,16 +183,15 @@ public class BilletIntegrationTest {
                 .statusCode(200)
                 .body("id", notNullValue()) //ou Matchers.equalTo si pas import
                 .body("name", equalTo("vielles charrues"))
-                .body("price", equalTo(70.0f)) //le f indique float, car double marche pas avec RestAssured
+                .body("price", equalTo(70.0)) //le f indique float, car double marche pas avec RestAssured
                 .body("totalQuantity", equalTo(100))
                 .body("remainingQuantity", equalTo(50));
     }
 
     @Test
-    void shouldNotCreateABilletIfValidationFails() throws Exception {
+    void shouldNotCreateABilletIfValidationFails() {
         // tester que valid marche pas si met nom vide
-        Billet billet = new Billet(UUID.randomUUID(), "", 70.0, 100, 50);
-        String body = mapper.writeValueAsString(billet);
+        Billet body = new Billet(UUID.randomUUID(), "", 70.0, 100, 50);
 
         given()
                 .basePath("/billets")
