@@ -3,6 +3,7 @@ package fr.heliena.billetterie;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.heliena.billetterie.model.Basket;
 import fr.heliena.billetterie.model.Billet;
+import fr.heliena.billetterie.model.Status;
 import fr.heliena.billetterie.repository.BasketRepository;
 import fr.heliena.billetterie.repository.BilletsRepository;
 import fr.heliena.billetterie.utils.IntegrationTest;
@@ -50,8 +51,8 @@ public class BasketIntegrationTest {
     }
 
     @Test
-    void shouldGetABasketByIdAndReturnABillet() {
-        Basket basket = new Basket(UUID.randomUUID(), "vide");
+    void shouldGetABasketByIdAndReturnABasket() {
+        Basket basket = new Basket(UUID.randomUUID(), Status.VALIDE);
         basketRepository.save(basket);
 
         given()
@@ -61,7 +62,7 @@ public class BasketIntegrationTest {
         .then()
                 .statusCode(200)
                 .body("id", equalTo(basket.getId().toString())) //ou Matchers.equalTo si pas import
-                .body("status", equalTo("vide"));
+                .body("status", equalTo(Status.VALIDE.toString()));
     }
 
 
@@ -78,7 +79,7 @@ public class BasketIntegrationTest {
 
     @Test
     void shouldDeleteABasketAndReturnAnEmptyContent() {
-        Basket basket = new Basket(UUID.randomUUID(), "vide");
+        Basket basket = new Basket(UUID.randomUUID(), Status.VALIDE);
         basketRepository.save(basket);
 
         given()
@@ -95,11 +96,11 @@ public class BasketIntegrationTest {
     @Test
         //throws Exception car mapper.writeValueAsString peut renvoyer des exceptions
     void shouldUpdateABillet() throws Exception {
-        Basket basket = new Basket(UUID.randomUUID(), "vide");
+        Basket basket = new Basket(UUID.randomUUID(), Status.VALIDE);
         basketRepository.save(basket);
 
         //object to json et changer le statut du panier
-        String requestBody = mapper.writeValueAsString(new Basket(basket.getId(), "rempli"));
+        String requestBody = mapper.writeValueAsString(new Basket(basket.getId(), Status.EN_COURS));
 
         given()
                 .basePath("/baskets")
@@ -111,7 +112,7 @@ public class BasketIntegrationTest {
                 //vérfier la réponse http
                 .statusCode(200)
                 .body("id", equalTo(basket.getId().toString())) //ou Matchers.equalTo si pas import
-                .body("status", equalTo("rempli"));
+                .body("status", equalTo(Status.EN_COURS.toString()));
 
         //vérifier que le billet est en base
         Optional<Basket> oSavedBasket = basketRepository.findById(basket.getId());
@@ -119,14 +120,14 @@ public class BasketIntegrationTest {
 
         //vérifier les caract de ce nvau billet
         Basket savedBasket = oSavedBasket.get();
-        assertEquals(savedBasket.getStatus(), "rempli");
+        assertEquals(savedBasket.getStatus(), Status.EN_COURS);
     }
 
 
     @Test
     void shouldCreateABasket() throws Exception {
         //test que quand fait un post on a retour 201 (ca veut dire objet created) et qu'on a un header location au bon format
-        Basket basket = new Basket(UUID.randomUUID(), "vide");
+        Basket basket = new Basket(UUID.randomUUID(), Status.VALIDE);
         String body = mapper.writeValueAsString(basket);
 
         String location = given()
@@ -153,13 +154,14 @@ public class BasketIntegrationTest {
         .then()
                 .statusCode(200)
                 .body("id", notNullValue()) //ou Matchers.equalTo si pas import
-                .body("status", equalTo("vide"));
+                //car restAssured veut des string pas des enum
+                .body("status", equalTo(Status.VALIDE.toString()));
     }
 
     @Test
     void shouldNotCreateABasketIfValidationFails() throws Exception {
         // tester que valid marche pas si met nom vide
-        Basket basket = new Basket(UUID.randomUUID(), "");
+        Basket basket = new Basket(UUID.randomUUID(), null);
         String body = mapper.writeValueAsString(basket);
 
         given()
