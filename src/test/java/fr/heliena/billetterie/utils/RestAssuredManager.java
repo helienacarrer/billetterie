@@ -15,6 +15,7 @@ public class RestAssuredManager implements TestExecutionListener {
         RestAssured.config = RestAssured.config()
                 .jsonConfig(
                         JsonConfig.jsonConfig()
+                                //par défaut ca return des float mais avoir des double (car le prix est double dans model)
                                 .numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)
                 );
     }
