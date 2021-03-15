@@ -1,6 +1,5 @@
 package fr.heliena.billetterie;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.heliena.billetterie.model.Billet;
 import fr.heliena.billetterie.repository.BilletsRepository;
 import fr.heliena.billetterie.utils.IntegrationTest;
@@ -33,10 +32,6 @@ public class BilletIntegrationTest {
     @Autowired
     BilletsRepository billetRepository;
 
-    //avoir objet java en string pour json
-    @Autowired
-    ObjectMapper mapper;
-
     @BeforeEach
     void setup() {
         RestAssured.port = port; //RestAssured ira tjs taper sur ce port
@@ -45,7 +40,7 @@ public class BilletIntegrationTest {
 
     @Test
     void shouldGetABilletByIdAndReturnANotFoundResponse() {
-        given() // équivaut à RestAssured.given() mais importé plus haut donc pas beoin
+        given() // équivaut à RestAssured.given() mais importé plus haut donc pas besoin
                 .basePath("/billets")
         .when()
                 .get(UUID.randomUUID().toString()) // on définit un id random donc sera pas en base
@@ -116,11 +111,11 @@ public class BilletIntegrationTest {
 
     @Test
     //throws Exception car mapper.writeValueAsString peut renvoyer des exceptions
-    void shouldUpdateABillet() throws Exception {
+    void shouldUpdateABillet() {
         Billet billet = new Billet(UUID.randomUUID(), "vielles charrues", 70.0, 100, 50);
         billetRepository.save(billet);
 
-        String requestBody = mapper.writeValueAsString(new Billet(billet.getId(), billet.getName(), 80.0, billet.getTotalQuantity(), billet.getRemainingQuantity()));
+        Billet requestBody = new Billet(billet.getId(), billet.getName(), 80.0, billet.getTotalQuantity(), billet.getRemainingQuantity());
 
         given() // équivaut à RestAssured.given() mais importé plus haut donc pas besoin
                 .basePath("/billets")
@@ -150,10 +145,9 @@ public class BilletIntegrationTest {
     }
 
     @Test
-    void shouldCreateABillet() throws Exception {
+    void shouldCreateABillet() {
         //test que quand fait un post on a retour 201 (ca veut dire created) et qu'on a un header location au bon format
-        Billet billet = new Billet(UUID.randomUUID(), "vielles charrues", 70.0, 100, 50);
-        String body = mapper.writeValueAsString(billet);
+        Billet body = new Billet(UUID.randomUUID(), "vielles charrues", 70.0, 100, 50);
 
         String location = given()
                 .basePath("/billets")
@@ -186,10 +180,9 @@ public class BilletIntegrationTest {
     }
 
     @Test
-    void shouldNotCreateABilletIfValidationFails() throws Exception {
+    void shouldNotCreateABilletIfValidationFails() {
         // tester que valid marche pas si met nom vide
-        Billet billet = new Billet(UUID.randomUUID(), "", 70.0, 100, 50);
-        String body = mapper.writeValueAsString(billet);
+        Billet body = new Billet(UUID.randomUUID(), "", 70.0, 100, 50);
 
         given()
                 .basePath("/billets")
