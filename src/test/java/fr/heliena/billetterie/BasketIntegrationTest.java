@@ -156,4 +156,21 @@ public class BasketIntegrationTest {
                 .body("status", equalTo("vide"));
     }
 
+    @Test
+    void shouldNotCreateABasketIfValidationFails() throws Exception {
+        // tester que valid marche pas si met nom vide
+        Basket basket = new Basket(UUID.randomUUID(), "");
+        String body = mapper.writeValueAsString(basket);
+
+        given()
+                .basePath("/baskets")
+                .contentType(ContentType.JSON)
+                .body(body)
+        .when()
+                .post()
+        .then()
+                //quad valid fonctionne pas, ca return bad request
+                .statusCode(400);
+    }
+
 }

@@ -9,6 +9,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.NotBlank;
 import java.util.UUID;
 
 @Entity //dire que c'est une table
@@ -22,6 +23,7 @@ public class Basket {
     @Id
     private UUID id;
 
+    @NotBlank
     @Column(name = "statut_panier")
     private String status;
 

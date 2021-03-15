@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
 import java.util.UUID;
@@ -31,7 +32,7 @@ public class BasketController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> addABasket(@RequestBody Basket basketToAdd){
+    public ResponseEntity<Void> addABasket(@Valid @RequestBody Basket basketToAdd){
         Basket result = basketService.addABasket(basketToAdd);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -43,7 +44,7 @@ public class BasketController {
     }
 
     @PutMapping("/{id}")
-    public Basket updateABasket(@PathVariable UUID id, @RequestBody Basket basketToUpdate){
+    public Basket updateABasket(@PathVariable UUID id, @Valid @RequestBody Basket basketToUpdate){
         return basketService.updateABasket(id, basketToUpdate);
     }
 
