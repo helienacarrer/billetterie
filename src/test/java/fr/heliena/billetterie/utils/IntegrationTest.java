@@ -18,7 +18,8 @@ import java.lang.annotation.Target;
 @TestExecutionListeners(
         mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS,
         listeners = {
-                PostgresManager.class
+                PostgresManager.class,
+                RestAssuredManager.class
         }
 )
 @Retention(RetentionPolicy.RUNTIME)
