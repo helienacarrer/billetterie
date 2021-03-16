@@ -9,11 +9,13 @@ import fr.heliena.billetterie.repository.BilletsRepository;
 import fr.heliena.billetterie.utils.IntegrationTest;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.server.LocalServerPort;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -25,20 +27,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @IntegrationTest
 public class BasketIntegrationTest {
 
+    //besoin pour faire uri dans un test
     @LocalServerPort
     int port;
 
     @Autowired
-    ObjectMapper mapper;
-
-    @Autowired
     BasketRepository basketRepository;
 
-    @BeforeEach
-    void setup() {
-        RestAssured.port = port;
-        RestAssured.enableLoggingOfRequestAndResponseIfValidationFails(); //si test échoue, RestAssured log tout
-    }
 
     @Test
     void shouldGetABasketByIdAndReturnANotFoundResponse () {
@@ -94,13 +89,13 @@ public class BasketIntegrationTest {
 
 
     @Test
-        //throws Exception car mapper.writeValueAsString peut renvoyer des exceptions
-    void shouldUpdateABillet() throws Exception {
+        //throws Exception car mapper.writeValueAsString peut renvoyer des exceptions: plus besoin
+    void shouldUpdateABillet() {
         Basket basket = new Basket(UUID.randomUUID(), Status.VALIDE);
         basketRepository.save(basket);
 
-        //object to json et changer le statut du panier
-        String requestBody = mapper.writeValueAsString(new Basket(basket.getId(), Status.EN_COURS));
+        //plus de mapper car restassured fait seul conversion objet en json
+        Basket requestBody = new Basket(basket.getId(), Status.EN_COURS);
 
         given()
                 .basePath("/baskets")
@@ -125,15 +120,14 @@ public class BasketIntegrationTest {
 
 
     @Test
-    void shouldCreateABasket() throws Exception {
+    void shouldCreateABasket() {
         //test que quand fait un post on a retour 201 (ca veut dire objet created) et qu'on a un header location au bon format
         Basket basket = new Basket(UUID.randomUUID(), Status.VALIDE);
-        String body = mapper.writeValueAsString(basket);
 
         String location = given()
                 .basePath("/baskets")
                 .contentType(ContentType.JSON)
-                .body(body)
+                .body(basket)
         .when()
                 .post()
         .then()
@@ -159,20 +153,49 @@ public class BasketIntegrationTest {
     }
 
     @Test
-    void shouldNotCreateABasketIfValidationFails() throws Exception {
+    void shouldNotCreateABasketIfValidationFails()  {
         // tester que valid marche pas si met nom vide
         Basket basket = new Basket(UUID.randomUUID(), null);
-        String body = mapper.writeValueAsString(basket);
 
         given()
                 .basePath("/baskets")
                 .contentType(ContentType.JSON)
-                .body(body)
+                .body(basket)
         .when()
                 .post()
         .then()
                 //quad valid fonctionne pas, ca return bad request
                 .statusCode(400);
     }
+
+    @Test
+    void shouldGetAllBaskets() {
+        // créer 2 paniers car bdd vide
+        Basket basket1 = new Basket(UUID.randomUUID(), Status.EN_COURS);
+        Basket basket2 = new Basket(UUID.randomUUID(), Status.VALIDE);
+        basketRepository.save(basket1);
+        basketRepository.save(basket2);
+
+        given() // équivaut à RestAssured.given() mais importé plus haut donc pas besoin
+                .basePath("/baskets")
+        .when()
+                .get()
+        .then()
+                .statusCode(200)
+                .body("size()", equalTo(2))
+                //$ est racine du body (première accolade)
+                .body("$", hasItems(
+                        //Map car json
+                        Matchers.<Map<String, Object>>allOf(
+                                hasEntry("id", basket1.getId().toString()),
+                                hasEntry("status", basket1.getStatus().toString())
+                        ),
+                        Matchers.<Map<String, Object>>allOf(
+                                hasEntry("id", basket2.getId().toString()),
+                                hasEntry("status", basket2.getStatus().toString())
+                        )
+                ));
+    }
+
 
 }

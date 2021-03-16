@@ -10,6 +10,8 @@ public class RestAssuredManager implements TestExecutionListener {
 
     @Override
     public void beforeTestMethod(TestContext testContext) {
+        //chercher dans contexte spring dans var d'env une propriété qui contient le port sur lequel le serveur écoute
+        //donc récupérer port random choisi par spring
         RestAssured.port = testContext.getApplicationContext().getEnvironment().getRequiredProperty("local.server.port", Integer.class);
         RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
         RestAssured.config = RestAssured.config()
