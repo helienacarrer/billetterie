@@ -2,17 +2,13 @@ package fr.heliena.billetterie.service;
 
 import fr.heliena.billetterie.exception.BasketIdMissmatchException;
 import fr.heliena.billetterie.exception.BasketNotFoundException;
-import fr.heliena.billetterie.exception.BilletNotFoundException;
 import fr.heliena.billetterie.model.Basket;
 import fr.heliena.billetterie.repository.BasketRepository;
-import fr.heliena.billetterie.repository.BilletsRepository;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 
 @RequiredArgsConstructor

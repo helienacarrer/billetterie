@@ -4,7 +4,6 @@ package fr.heliena.billetterie.service;
 import fr.heliena.billetterie.exception.BilletNotFoundException;
 import fr.heliena.billetterie.model.Billet;
 import fr.heliena.billetterie.repository.BilletsRepository;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
