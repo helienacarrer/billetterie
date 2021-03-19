@@ -1,8 +1,11 @@
 package fr.heliena.billetterie.controller;
 
 
+import fr.heliena.billetterie.controller.dto.ResponseBilletDto;
+import fr.heliena.billetterie.controller.mapper.BilletMapper;
 import fr.heliena.billetterie.model.Billet;
 import fr.heliena.billetterie.service.BilletsService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -14,14 +17,11 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/billets")
+@RequiredArgsConstructor
 public class BilletController {
 
     private final BilletsService billetsService;
-
-    public BilletController(BilletsService billetsService) {
-        this.billetsService = billetsService;
-    }
-
+    private final BilletMapper billetMapper;
 
     /////////////////////////////////////////// getById
     ///////////////// facon sans response entity
@@ -32,19 +32,19 @@ public class BilletController {
 
     //////////////// facon avec response entity
     @GetMapping
-    public ResponseEntity<List<Billet>> getAllBillets() {
+    public ResponseEntity<List<ResponseBilletDto>> getAllBillets() {
         // service return une liste
         List<Billet> result = this.billetsService.getAllBillets();
         // controller renvoie responseEntity
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(billetMapper.toDto(result));
     }
 
     ////////////////////////////////////// getAll
     ///////////////// facon avec une exception
     @GetMapping("/{id}")
-    public ResponseEntity<Billet> getBilletById(@PathVariable UUID id) {
+    public ResponseEntity<ResponseBilletDto> getBilletById(@PathVariable UUID id) {
         Billet billet = this.billetsService.getBilletById(id);
-        return ResponseEntity.ok(billet);
+        return ResponseEntity.ok(billetMapper.toDto(billet));
     }
 
 
@@ -77,9 +77,9 @@ public class BilletController {
 //    }
 
     @GetMapping("/limitPrice/{priceLimit}")
-    public ResponseEntity<List<Billet>> findABilletByPrice(@PathVariable double priceLimit) {
+    public ResponseEntity<List<ResponseBilletDto>> findABilletByPrice(@PathVariable double priceLimit) {
         List<Billet> result = billetsService.findABilletByPrice(priceLimit);
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(billetMapper.toDto(result));
     }
 
     @PostMapping
@@ -101,8 +101,8 @@ public class BilletController {
     }
 
     @PutMapping("/{id}")
-    public Billet updateOneBillet(@PathVariable UUID id, @Valid @RequestBody Billet billetToUpdate) {
-        return this.billetsService.updateOneBillet(id, billetToUpdate);
+    public ResponseBilletDto updateOneBillet(@PathVariable UUID id, @Valid @RequestBody Billet billetToUpdate) {
+        return billetMapper.toDto(this.billetsService.updateOneBillet(id, billetToUpdate));
     }
 
     @DeleteMapping("/{id}")

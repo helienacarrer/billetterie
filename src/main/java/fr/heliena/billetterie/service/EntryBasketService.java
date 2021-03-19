@@ -2,6 +2,7 @@ package fr.heliena.billetterie.service;
 
 
 import fr.heliena.billetterie.exception.BasketNotFoundException;
+import fr.heliena.billetterie.exception.EntryBasketIdMissmatchException;
 import fr.heliena.billetterie.exception.EntryBasketNotFoundException;
 import fr.heliena.billetterie.model.Basket;
 import fr.heliena.billetterie.model.EntryBasket;
@@ -15,7 +16,7 @@ import java.util.UUID;
 
 
 @Service
-@Transactional
+@Transactional //faire des lock pendant que fait action(findByIg et save) pour pas que qqun modifie entretemps
 @RequiredArgsConstructor
 public class EntryBasketService {
 
@@ -51,6 +52,10 @@ public class EntryBasketService {
     }
 
     public EntryBasket updateAnEntryBasket(UUID basketId, UUID id, EntryBasket entryBasketToUpdate) {
+        if (!Objects.equals(id, entryBasketToUpdate.getId())) {
+            throw new EntryBasketIdMissmatchException(entryBasketToUpdate.getId(), id);
+        }
+
         Basket basket = basketRepository.findById(basketId)
                 .orElseThrow(() -> new BasketNotFoundException(basketId));
 

@@ -98,7 +98,9 @@ public class EntryBasketIntegrationTest {
         Basket savedBasket = oSavedBasket.get();
         assertEquals(1, savedBasket.getEntries().size());
 
-        assertEquals(2, savedBasket.getEntries().get(0).getQuantity());
+        EntryBasket updatedEntry = savedBasket.getEntries().get(0);
+        assertEquals(savedEntry.getId(), updatedEntry.getId());
+        assertEquals(2, updatedEntry.getQuantity());
     }
 
 }

@@ -11,4 +11,5 @@ import java.util.UUID;
 public class BasketNotFoundException extends RuntimeException{
 
     private final UUID id;
+
 }
