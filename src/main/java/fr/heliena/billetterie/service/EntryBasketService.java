@@ -11,7 +11,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 
@@ -47,7 +49,41 @@ public class EntryBasketService {
         Basket basket = basketRepository.findById(basketId)
                 .orElseThrow(() -> new BasketNotFoundException(basketId));
 
-        basket.getEntries().add(entryBasketToAdd);
+//        // ne pas ajouter deux fois le meme billet mais augmenter quantity dans entryBasket
+//        List<EntryBasket> listEntryBasketOfTheBasket = basket.getEntries();
+//        boolean existingEntry = false;
+//        for (EntryBasket entryBasket : listEntryBasketOfTheBasket) {
+//            UUID idBillet = entryBasket.getBillet().getId();
+//            if (Objects.equals(idBillet, entryBasketToAdd.getBillet().getId())) {
+//                int actualQuantityOfThisBillet = entryBasket.getQuantity() + entryBasketToAdd.getQuantity();
+//                entryBasket.setQuantity(actualQuantityOfThisBillet);
+//                existingEntry = true;
+//                break;
+//            }
+//        }
+//
+//        // existingEntry == false // existingEntry != true // !existingEntry
+//        // si existingEntry true => false // false // false
+//        // si existingEntry false => true // true // true
+//        // si existingEntry est faux, ca signifie qu'aucune entrée ne contient ce billet
+//        // du coup, on doit créer une nouvelle entrée avec ce billet
+//        if (!existingEntry) {
+//            basket.getEntries().add(entryBasketToAdd);
+//        }
+
+        // autre possibilité
+        Optional<EntryBasket> existingEntryWithGivenBillet = basket.getEntries().stream()
+                .filter(entryBasket -> Objects.equals(entryBasket.getBillet().getId(), entryBasketToAdd.getBillet().getId()))
+                .findFirst();
+
+        existingEntryWithGivenBillet.ifPresentOrElse(
+                entryBasket -> entryBasket.setQuantity(entryBasket.getQuantity() + entryBasketToAdd.getQuantity()),
+                () -> basket.getEntries().add(entryBasketToAdd)
+        );
+
+        // décrémenter nbr billet restants quand on l'ajoute au panier
+        UUID idBilletAdded = entryBasketToAdd.getBillet().getId();
+
         basketRepository.save(basket);
     }
 

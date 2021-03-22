@@ -55,6 +55,33 @@ public class EntryBasketIntegrationTest {
     }
 
     @Test
+    void shouldAddAnEntryToTheBasketWithBilletConflict() {
+        Billet billet = billetsRepository.save(new Billet(null, "vielles charrues", 70.0, 100, 50));
+        Basket basket = basketRepository.save(new Basket(null, Status.VALIDE, List.of(new EntryBasket(null, billet, 2))));
+
+        EntryBasket body = new EntryBasket(null, billet, 1);
+
+        given()
+                .basePath("/baskets/" + basket.getId() + "/entries")
+                .contentType(ContentType.JSON)
+                .body(body)
+        .when()
+                .post()
+        .then()
+                .statusCode(201);
+
+        Optional<Basket> oSavedBasket = basketRepository.findById(basket.getId());
+        assertTrue(oSavedBasket.isPresent());
+
+        Basket savedBasket = oSavedBasket.get();
+        assertEquals(1, savedBasket.getEntries().size());
+
+        EntryBasket savedEntry = savedBasket.getEntries().get(0);
+        assertEquals(billet, savedEntry.getBillet());
+        assertEquals(3, savedEntry.getQuantity());
+    }
+
+    @Test
     void shouldDeleteAnEntryFromTheBasket() {
         Billet billet = billetsRepository.save(new Billet(null, "vielles charrues", 70.0, 100, 50));
         Basket basket = basketRepository.save(new Basket(null, Status.VALIDE, List.of(new EntryBasket(null, billet, 1))));
