@@ -104,6 +104,12 @@ public class EntryBasketIntegrationTest {
 
         Basket savedBasket = oSavedBasket.get();
         assertEquals(0, savedBasket.getEntries().size());
+
+        Optional<Billet> oSavedBillet = billetsRepository.findById(billet.getId());
+        assertTrue(oSavedBillet.isPresent());
+
+        Billet savedBillet = oSavedBillet.get();
+        assertEquals(51, savedBillet.getRemainingQuantity());
     }
 
     @Test

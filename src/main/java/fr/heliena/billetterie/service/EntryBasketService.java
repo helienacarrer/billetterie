@@ -42,6 +42,14 @@ public class EntryBasketService {
                 //sinon exception si optional vide
                 .orElseThrow(() -> new EntryBasketNotFoundException(id));
 
+        //incrémenter le nbr de billets restants
+        UUID billetId = entryBasket.getBillet().getId();
+        Billet billet = billetsRepository.findById(billetId)
+                .orElseThrow(() -> new BilletNotFoundException(billetId));
+        int remainingQuantity = billet.getRemainingQuantity() + entryBasket.getQuantity();
+        billet.setRemainingQuantity(remainingQuantity);
+        billetsRepository.save(billet);
+
         //suppr l'entry concernée
         basket.getEntries().remove(entryBasket);
         //save le basket qui 'aura pas cette entrée
