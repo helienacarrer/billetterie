@@ -50,8 +50,13 @@ public class EntryBasketIntegrationTest {
         assertEquals(1, savedBasket.getEntries().size());
 
         EntryBasket savedEntry = savedBasket.getEntries().get(0);
-        assertEquals(billet, savedEntry.getBillet());
+        assertEquals(billet.getId(), savedEntry.getBillet().getId());
         assertEquals(1, savedEntry.getQuantity());
+
+        Optional<Billet> oBillet = billetsRepository.findById(billet.getId());
+        assertTrue(oBillet.isPresent());
+
+        assertEquals(49, oBillet.get().getRemainingQuantity());
     }
 
     @Test
@@ -77,7 +82,7 @@ public class EntryBasketIntegrationTest {
         assertEquals(1, savedBasket.getEntries().size());
 
         EntryBasket savedEntry = savedBasket.getEntries().get(0);
-        assertEquals(billet, savedEntry.getBillet());
+        assertEquals(billet.getId(), savedEntry.getBillet().getId());
         assertEquals(3, savedEntry.getQuantity());
     }
 

@@ -2,16 +2,18 @@ package fr.heliena.billetterie.service;
 
 
 import fr.heliena.billetterie.exception.BasketNotFoundException;
+import fr.heliena.billetterie.exception.BilletNotFoundException;
 import fr.heliena.billetterie.exception.EntryBasketIdMissmatchException;
 import fr.heliena.billetterie.exception.EntryBasketNotFoundException;
 import fr.heliena.billetterie.model.Basket;
+import fr.heliena.billetterie.model.Billet;
 import fr.heliena.billetterie.model.EntryBasket;
 import fr.heliena.billetterie.repository.BasketRepository;
+import fr.heliena.billetterie.repository.BilletsRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -23,6 +25,7 @@ import java.util.UUID;
 public class EntryBasketService {
 
     private final BasketRepository basketRepository;
+    private final BilletsRepository billetsRepository;
 
     public void deleteAnEntryBasketById(UUID basketId, UUID id) {
         //récupérer basket a qui appartient entry
@@ -46,6 +49,19 @@ public class EntryBasketService {
     }
 
     public void addAnEntryBasket(UUID basketId, EntryBasket entryBasketToAdd) {
+        // décrémenter nbr billet restants quand on l'ajoute au panier
+        UUID idBilletToAdd = entryBasketToAdd.getBillet().getId();
+        Billet billet = billetsRepository.findById(idBilletToAdd)
+                .orElseThrow(() -> new BilletNotFoundException(idBilletToAdd));
+
+        if (billet.getRemainingQuantity() < entryBasketToAdd.getQuantity()) {
+            // fixme create new exception and handle it
+            throw new RuntimeException();
+        }
+
+        billet.setRemainingQuantity(billet.getRemainingQuantity() - entryBasketToAdd.getQuantity());
+        billetsRepository.save(billet);
+
         Basket basket = basketRepository.findById(basketId)
                 .orElseThrow(() -> new BasketNotFoundException(basketId));
 
@@ -80,9 +96,6 @@ public class EntryBasketService {
                 entryBasket -> entryBasket.setQuantity(entryBasket.getQuantity() + entryBasketToAdd.getQuantity()),
                 () -> basket.getEntries().add(entryBasketToAdd)
         );
-
-        // décrémenter nbr billet restants quand on l'ajoute au panier
-        UUID idBilletAdded = entryBasketToAdd.getBillet().getId();
 
         basketRepository.save(basket);
     }
