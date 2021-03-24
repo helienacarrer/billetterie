@@ -1,4 +1,4 @@
-package fr.heliena.billetterie.utils;
+package fr.heliena.billetterie.integration.utils;
 
 import io.restassured.RestAssured;
 import io.restassured.config.JsonConfig;

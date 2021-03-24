@@ -1,4 +1,4 @@
-package fr.heliena.billetterie;
+package fr.heliena.billetterie.integration;
 
 import fr.heliena.billetterie.model.Basket;
 import fr.heliena.billetterie.model.Billet;
@@ -6,7 +6,7 @@ import fr.heliena.billetterie.model.EntryBasket;
 import fr.heliena.billetterie.model.Status;
 import fr.heliena.billetterie.repository.BasketRepository;
 import fr.heliena.billetterie.repository.BilletsRepository;
-import fr.heliena.billetterie.utils.IntegrationTest;
+import fr.heliena.billetterie.integration.utils.IntegrationTest;
 import io.restassured.http.ContentType;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;

@@ -1,4 +1,4 @@
-package fr.heliena.billetterie.utils;
+package fr.heliena.billetterie.integration.utils;
 
 import org.flywaydb.core.Flyway;
 import org.springframework.test.context.TestContext;

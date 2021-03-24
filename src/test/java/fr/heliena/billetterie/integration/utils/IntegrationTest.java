@@ -1,4 +1,4 @@
-package fr.heliena.billetterie.utils;
+package fr.heliena.billetterie.integration.utils;
 
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;

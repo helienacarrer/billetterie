@@ -1,8 +1,8 @@
-package fr.heliena.billetterie;
+package fr.heliena.billetterie.integration;
 
 import fr.heliena.billetterie.model.Billet;
 import fr.heliena.billetterie.repository.BilletsRepository;
-import fr.heliena.billetterie.utils.IntegrationTest;
+import fr.heliena.billetterie.integration.utils.IntegrationTest;
 import io.restassured.http.ContentType;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
@@ -94,14 +94,9 @@ public class BilletIntegrationTest {
 
     @Test
     void shouldGetABilletWithLimitPrice() {
-
         // créer 2 billets car bdd vide
-        Billet billet1 = new Billet(UUID.randomUUID(), "vielles charrues", 70.0, 100, 50);
-        Billet billet2 = new Billet(UUID.randomUUID(), "roi Arthur", 50.0, 200, 50);
-
-        //save ce billet dans repo
-        billetRepository.save(billet1); //sur instance créée plus haut
-        billetRepository.save(billet2);
+        Billet billet1 = billetRepository.save(new Billet(UUID.randomUUID(), "vielles charrues", 70.0, 100, 50));
+        Billet billet2 = billetRepository.save(new Billet(UUID.randomUUID(), "roi Arthur", 50.0, 200, 50));
 
         given() // équivaut à RestAssured.given() mais importé plus haut donc pas besoin
                 .basePath("/billets/limitPrice")
@@ -109,16 +104,28 @@ public class BilletIntegrationTest {
                 .get("60")
         .then()
                 .statusCode(200)
-                .body("size()", equalTo(1));
+                .body("size()", equalTo(1))
+                .body("$", hasItems(
+                        Matchers.<Map<String, Object>>allOf(
+                                hasEntry("id", billet2.getId().toString()),
+                                hasEntry("name", billet2.getName()),
+                                hasEntry("price", billet2.getPrice()),
+                                hasEntry("totalQuantity", billet2.getTotalQuantity()),
+                                hasEntry("remainingQuantity", billet2.getRemainingQuantity())
+                        )
+                ));
     }
 
     @Test
-    //throws Exception car mapper.writeValueAsString peut renvoyer des exceptions
     void shouldUpdateABillet() {
-        Billet billet = new Billet(null, "vielles charrues", 70.0, 100, 50);
-        billetRepository.save(billet);
+        Billet billet = billetRepository.save(new Billet(null, "vielles charrues", 70.0, 100, 50));
 
-        Billet requestBody = new Billet(billet.getId(), billet.getName(), 80.0, billet.getTotalQuantity(), billet.getRemainingQuantity());
+        Map<String, Object> requestBody = Map.of(
+                "id", billet.getId(),
+                "name", billet.getName(),
+                "price", 80.0,
+                "totalQuantity", billet.getTotalQuantity()
+        );
 
         given() // équivaut à RestAssured.given() mais importé plus haut donc pas besoin
                 .basePath("/billets")
@@ -150,7 +157,11 @@ public class BilletIntegrationTest {
     @Test
     void shouldCreateABillet() {
         //test que quand fait un post on a retour 201 (ca veut dire created) et qu'on a un header location au bon format
-        Billet body = new Billet(null, "vielles charrues", 70.0, 100, 50);
+        Map<String, Object> body = Map.of(
+                "name", "vielles charrues",
+                "price", 70.0,
+                "totalQuantity", 100
+        );
 
         String location = given()
                 .basePath("/billets")
@@ -179,13 +190,17 @@ public class BilletIntegrationTest {
                 .body("name", equalTo("vielles charrues"))
                 .body("price", equalTo(70.0)) //le f indique float, car double marche pas avec RestAssured
                 .body("totalQuantity", equalTo(100))
-                .body("remainingQuantity", equalTo(50));
+                .body("remainingQuantity", equalTo(100));
     }
 
     @Test
     void shouldNotCreateABilletIfValidationFails() {
         // tester que valid marche pas si met nom vide
-        Billet body = new Billet(null, "", 70.0, 100, 50);
+        Map<String, Object> body = Map.of(
+                "name", "",
+                "price", 70.0,
+                "totalQuantity", 100
+        );
 
         given()
                 .basePath("/billets")
@@ -212,9 +227,7 @@ public class BilletIntegrationTest {
     @Test
     void shouldDeleteABilletAndReturnAnEmptyContent() {
         // créer un billet car bdd vide
-        Billet billet = new Billet(null, "vielles charrues", 70.0, 100, 50);
-        //save ce billet dans repo
-        billetRepository.save(billet); //sur instance créée plus haut
+        Billet billet = billetRepository.save(new Billet(null, "vielles charrues", 70.0, 100, 50));
 
         given()
                 .basePath("/billets")

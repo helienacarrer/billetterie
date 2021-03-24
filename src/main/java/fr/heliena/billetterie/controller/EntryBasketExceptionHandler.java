@@ -21,7 +21,7 @@ public class EntryBasketExceptionHandler extends ResponseEntityExceptionHandler 
 
     @ExceptionHandler(value = EntryBasketIdMissmatchException.class)
     protected ResponseEntity<String> handleEntryBasketIdMissmatchException(EntryBasketIdMissmatchException ex) {
-        String bodyOfResponse = "Id of the body " + ex.getBodyId() + " does not match id of thr path " + ex.getPathId();
+        String bodyOfResponse = "Id of the body " + ex.getBodyId() + " does not match id of the path " + ex.getPathId();
         return new ResponseEntity<>(bodyOfResponse, new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
 

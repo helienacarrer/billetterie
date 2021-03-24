@@ -22,7 +22,7 @@ public class BasketExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = BasketIdMissmatchException.class)
     protected ResponseEntity<String> handleBasketIdMissmatchException(BasketIdMissmatchException ex) {
-        String bodyOfResponse = "Id of the body " + ex.getBodyId() + " doesnt match id of thr path " + ex.getPathId();
+        String bodyOfResponse = "Id of the body " + ex.getBodyId() + " doesnt match id of the path " + ex.getPathId();
         return new ResponseEntity<>(bodyOfResponse, new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
 
