@@ -12,7 +12,7 @@ public class PostRequestBilletDto {
     private String name;
 
     @Min(0)
-    private Double price;
+    private double price;
 
     @Min(0)
     private int totalQuantity;

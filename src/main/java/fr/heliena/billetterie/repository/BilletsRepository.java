@@ -12,6 +12,6 @@ import java.util.UUID;
 @Repository
 public interface BilletsRepository extends JpaRepository<Billet, UUID> {
 
-    @Query("SELECT b FROM Billet b WHERE b.price > :priceLimit")
+    @Query("SELECT b FROM Billet b WHERE b.price < :priceLimit")
     List<Billet> findABilletByPrice(@Param("priceLimit") double priceLimit);
 }

@@ -52,6 +52,7 @@ public class EntryBasketService {
 
         //suppr l'entry concernée
         basket.getEntries().remove(entryBasket);
+
         //save le basket qui 'aura pas cette entrée
         basketRepository.save(basket);
     }
@@ -108,6 +109,7 @@ public class EntryBasketService {
         basketRepository.save(basket);
     }
 
+    // fixme update billet remaining quantity
     public EntryBasket updateAnEntryBasket(UUID basketId, UUID id, EntryBasket entryBasketToUpdate) {
         if (!Objects.equals(id, entryBasketToUpdate.getId())) {
             throw new EntryBasketIdMissmatchException(entryBasketToUpdate.getId(), id);

@@ -1,6 +1,8 @@
 package fr.heliena.billetterie.controller;
 
 
+import fr.heliena.billetterie.controller.dto.PostRequestBilletDto;
+import fr.heliena.billetterie.controller.dto.PutRequestBilletDto;
 import fr.heliena.billetterie.controller.dto.ResponseBilletDto;
 import fr.heliena.billetterie.controller.mapper.BilletMapper;
 import fr.heliena.billetterie.model.Billet;
@@ -83,8 +85,8 @@ public class BilletController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> addOneBillet(@Valid @RequestBody Billet billetToAdd) {
-        Billet billet = this.billetsService.addOneBillet(billetToAdd);
+    public ResponseEntity<Void> addOneBillet(@Valid @RequestBody PostRequestBilletDto billetToAdd) {
+        Billet billet = this.billetsService.addOneBillet(billetMapper.toModel(billetToAdd));
         // créer URI qui est une url de la ressource qu'on vient de créer
         //builder = on donne toutes infos pour créer URI grace au toUri
         URI location = ServletUriComponentsBuilder
@@ -101,8 +103,8 @@ public class BilletController {
     }
 
     @PutMapping("/{id}")
-    public ResponseBilletDto updateOneBillet(@PathVariable UUID id, @Valid @RequestBody Billet billetToUpdate) {
-        return billetMapper.toDto(this.billetsService.updateOneBillet(id, billetToUpdate));
+    public ResponseBilletDto updateOneBillet(@PathVariable UUID id, @Valid @RequestBody PutRequestBilletDto billetToUpdate) {
+        return billetMapper.toDto(this.billetsService.updateOneBillet(id, billetMapper.toModel(billetToUpdate)));
     }
 
     @DeleteMapping("/{id}")

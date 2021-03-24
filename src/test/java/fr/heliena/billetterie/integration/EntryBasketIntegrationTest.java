@@ -1,4 +1,4 @@
-package fr.heliena.billetterie;
+package fr.heliena.billetterie.integration;
 
 import fr.heliena.billetterie.model.Basket;
 import fr.heliena.billetterie.model.Billet;
@@ -6,12 +6,13 @@ import fr.heliena.billetterie.model.EntryBasket;
 import fr.heliena.billetterie.model.Status;
 import fr.heliena.billetterie.repository.BasketRepository;
 import fr.heliena.billetterie.repository.BilletsRepository;
-import fr.heliena.billetterie.utils.IntegrationTest;
+import fr.heliena.billetterie.integration.utils.IntegrationTest;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static io.restassured.RestAssured.given;
@@ -32,7 +33,13 @@ public class EntryBasketIntegrationTest {
         Billet billet = billetsRepository.save(new Billet(null, "vielles charrues", 70.0, 100, 50));
         Basket basket = basketRepository.save(new Basket(null, Status.VALIDE, List.of()));
 
-        EntryBasket body = new EntryBasket(null, billet, 1);
+        //postRequestDto
+        Map<String, Object> body = Map.of(
+                "billet", Map.of(
+                        "id", billet.getId()
+                ),
+                "quantity", 1
+        );
 
         given()
                 .basePath("/baskets/" + basket.getId() + "/entries")
@@ -64,7 +71,12 @@ public class EntryBasketIntegrationTest {
         Billet billet = billetsRepository.save(new Billet(null, "vielles charrues", 70.0, 100, 50));
         Basket basket = basketRepository.save(new Basket(null, Status.VALIDE, List.of(new EntryBasket(null, billet, 2))));
 
-        EntryBasket body = new EntryBasket(null, billet, 1);
+        Map<String, Object> body = Map.of(
+                "billet", Map.of(
+                        "id", billet.getId()
+                ),
+                "quantity", 1
+        );
 
         given()
                 .basePath("/baskets/" + basket.getId() + "/entries")
@@ -119,7 +131,13 @@ public class EntryBasketIntegrationTest {
 
         EntryBasket savedEntry = basket.getEntries().get(0);
 
-        EntryBasket body = new EntryBasket(savedEntry.getId(), savedEntry.getBillet(), 2);
+        Map<String, Object> body = Map.of(
+                "id", savedEntry.getId(),
+                "billet", Map.of(
+                        "id", billet.getId()
+                ),
+                "quantity", 2
+        );
 
         given()
                 .basePath("/baskets/" + basket.getId() + "/entries")
