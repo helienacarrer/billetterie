@@ -45,9 +45,7 @@ public class BilletIntegrationTest {
     @Test
     void shouldGetABilletByIdAndReturnABillet() {
         // créer un billet car bdd vide
-        Billet billet = new Billet(UUID.randomUUID(), "vielles charrues", 70.0, 100, 50);
-        //save ce billet dans repo
-        billetRepository.save(billet); //sur instance créée plus haut
+        Billet billet = billetRepository.save(new Billet(null, "vielles charrues", 70.0, 100, 50));
 
         given()
                 .basePath("/billets")
@@ -66,12 +64,8 @@ public class BilletIntegrationTest {
     @Test
     void shouldGetAllBillets() {
         // créer 2 billets car bdd vide
-        Billet billet1 = new Billet(UUID.randomUUID(), "vielles charrues", 70.0, 100, 50);
-        Billet billet2 = new Billet(UUID.randomUUID(), "roi Arthur", 50.0, 200, 50);
-
-        //save ce billet dans repo
-        billetRepository.save(billet1); //sur instance créée plus haut
-        billetRepository.save(billet2);
+        Billet billet1 = billetRepository.save(new Billet(null, "vielles charrues", 70.0, 100, 50));
+        Billet billet2 = billetRepository.save(new Billet(null, "roi Arthur", 50.0, 200, 50));
 
         given() // équivaut à RestAssured.given() mais importé plus haut donc pas beoin
                 .basePath("/billets")
@@ -121,7 +115,7 @@ public class BilletIntegrationTest {
     @Test
     //throws Exception car mapper.writeValueAsString peut renvoyer des exceptions
     void shouldUpdateABillet() {
-        Billet billet = new Billet(UUID.randomUUID(), "vielles charrues", 70.0, 100, 50);
+        Billet billet = new Billet(null, "vielles charrues", 70.0, 100, 50);
         billetRepository.save(billet);
 
         Billet requestBody = new Billet(billet.getId(), billet.getName(), 80.0, billet.getTotalQuantity(), billet.getRemainingQuantity());
@@ -156,7 +150,7 @@ public class BilletIntegrationTest {
     @Test
     void shouldCreateABillet() {
         //test que quand fait un post on a retour 201 (ca veut dire created) et qu'on a un header location au bon format
-        Billet body = new Billet(UUID.randomUUID(), "vielles charrues", 70.0, 100, 50);
+        Billet body = new Billet(null, "vielles charrues", 70.0, 100, 50);
 
         String location = given()
                 .basePath("/billets")
@@ -191,7 +185,7 @@ public class BilletIntegrationTest {
     @Test
     void shouldNotCreateABilletIfValidationFails() {
         // tester que valid marche pas si met nom vide
-        Billet body = new Billet(UUID.randomUUID(), "", 70.0, 100, 50);
+        Billet body = new Billet(null, "", 70.0, 100, 50);
 
         given()
                 .basePath("/billets")
@@ -218,7 +212,7 @@ public class BilletIntegrationTest {
     @Test
     void shouldDeleteABilletAndReturnAnEmptyContent() {
         // créer un billet car bdd vide
-        Billet billet = new Billet(UUID.randomUUID(), "vielles charrues", 70.0, 100, 50);
+        Billet billet = new Billet(null, "vielles charrues", 70.0, 100, 50);
         //save ce billet dans repo
         billetRepository.save(billet); //sur instance créée plus haut
 

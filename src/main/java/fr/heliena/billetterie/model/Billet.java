@@ -4,11 +4,9 @@ package fr.heliena.billetterie.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import java.util.UUID;
@@ -18,10 +16,14 @@ import java.util.UUID;
 @Data //faire les getter et setter
 @AllArgsConstructor //créer un constructeur pas vide, donc celui par défaut disparait
 @NoArgsConstructor //or jpa a besoin d'un constructeur vide
-
 public class Billet {
 
     @Id
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(
+            name = "UUID",
+            strategy = "org.hibernate.id.UUIDGenerator"
+    )
     private UUID id;
 
     @NotBlank
