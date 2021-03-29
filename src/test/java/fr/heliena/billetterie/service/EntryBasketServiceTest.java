@@ -82,7 +82,7 @@ public class EntryBasketServiceTest {
 
         // THEN
         // verify permet de s'assurer que la méthode save a été appelée une fois avec un billet, puis on capture ce avec quoi elle a été appelée
-        // avec l'argument captor, on va capturer les arguments avec lesquels la méthode a été appelée
+        // avec l'argument captor, on va capturer les arguments avec lesquels la méthode a été appelée (le billet sur lequel on a appliqué le delete du service)
         // ensuite, on va pouvoir faire des vérifications sur les arguments capturés
         verify(billetsRepository, times(1)).save(billetArgumentCaptor.capture());
         Billet capturedBillet = billetArgumentCaptor.getValue();
