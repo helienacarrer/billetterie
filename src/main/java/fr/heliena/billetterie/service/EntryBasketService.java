@@ -1,15 +1,11 @@
 package fr.heliena.billetterie.service;
 
 
-import fr.heliena.billetterie.exception.BasketNotFoundException;
-import fr.heliena.billetterie.exception.BilletNotFoundException;
 import fr.heliena.billetterie.exception.EntryBasketIdMissmatchException;
 import fr.heliena.billetterie.exception.EntryBasketNotFoundException;
 import fr.heliena.billetterie.model.Basket;
 import fr.heliena.billetterie.model.Billet;
 import fr.heliena.billetterie.model.EntryBasket;
-import fr.heliena.billetterie.repository.BasketRepository;
-import fr.heliena.billetterie.repository.BilletsRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -24,13 +20,13 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class EntryBasketService {
 
-    private final BasketRepository basketRepository;
-    private final BilletsRepository billetsRepository;
+    private final BasketService basketService;
+    // FIXME
+    private final BilletsService billetsService;
 
     public void deleteAnEntryBasketById(UUID basketId, UUID id) {
         //récupérer basket a qui appartient entry
-        Basket basket = basketRepository.findById(basketId)
-                .orElseThrow(() -> new BasketNotFoundException(basketId));
+        Basket basket = basketService.getABasketById(basketId);
 
         //récupérer entry du basket concerné: stream de entrybasket
         EntryBasket entryBasket = basket.getEntries().stream()
@@ -44,24 +40,22 @@ public class EntryBasketService {
 
         //incrémenter le nbr de billets restants
         UUID billetId = entryBasket.getBillet().getId();
-        Billet billet = billetsRepository.findById(billetId)
-                .orElseThrow(() -> new BilletNotFoundException(billetId));
+        Billet billet = billetsService.getBilletById(billetId);
         int remainingQuantity = billet.getRemainingQuantity() + entryBasket.getQuantity();
         billet.setRemainingQuantity(remainingQuantity);
-        billetsRepository.save(billet);
+        billetsService.updateOneBillet(billetId, billet);
 
         //suppr l'entry concernée
         basket.getEntries().remove(entryBasket);
 
         //save le basket qui 'aura pas cette entrée
-        basketRepository.save(basket);
+        basketService.updateABasket(basketId, basket);
     }
 
     public void addAnEntryBasket(UUID basketId, EntryBasket entryBasketToAdd) {
         // décrémenter nbr billet restants quand on l'ajoute au panier
         UUID idBilletToAdd = entryBasketToAdd.getBillet().getId();
-        Billet billet = billetsRepository.findById(idBilletToAdd)
-                .orElseThrow(() -> new BilletNotFoundException(idBilletToAdd));
+        Billet billet = billetsService.getBilletById(idBilletToAdd);
 
         if (billet.getRemainingQuantity() < entryBasketToAdd.getQuantity()) {
             // fixme create new exception and handle it
@@ -69,10 +63,9 @@ public class EntryBasketService {
         }
 
         billet.setRemainingQuantity(billet.getRemainingQuantity() - entryBasketToAdd.getQuantity());
-        billetsRepository.save(billet);
+        billetsService.updateOneBillet(billet.getId(), billet);
 
-        Basket basket = basketRepository.findById(basketId)
-                .orElseThrow(() -> new BasketNotFoundException(basketId));
+        Basket basket = basketService.getABasketById(basketId);
 
 //        // ne pas ajouter deux fois le meme billet mais augmenter quantity dans entryBasket
 //        List<EntryBasket> listEntryBasketOfTheBasket = basket.getEntries();
@@ -97,6 +90,7 @@ public class EntryBasketService {
 //        }
 
         // autre possibilité
+        // FIXME
         Optional<EntryBasket> existingEntryWithGivenBillet = basket.getEntries().stream()
                 .filter(entryBasket -> Objects.equals(entryBasket.getBillet().getId(), entryBasketToAdd.getBillet().getId()))
                 .findFirst();
@@ -106,7 +100,7 @@ public class EntryBasketService {
                 () -> basket.getEntries().add(entryBasketToAdd)
         );
 
-        basketRepository.save(basket);
+        basketService.updateABasket(basketId, basket);
     }
 
     // fixme update billet remaining quantity
@@ -115,17 +109,17 @@ public class EntryBasketService {
             throw new EntryBasketIdMissmatchException(entryBasketToUpdate.getId(), id);
         }
 
-        Basket basket = basketRepository.findById(basketId)
-                .orElseThrow(() -> new BasketNotFoundException(basketId));
+        Basket basket = basketService.getABasketById(basketId);
 
         EntryBasket entryBasket = basket.getEntries().stream()
                 .filter(e -> Objects.equals(e.getId(), id))
                 .findFirst()
                 .orElseThrow(() -> new EntryBasketNotFoundException(id));
 
-        basket.getEntries().remove(entryBasket);
-        basket.getEntries().add(entryBasketToUpdate);
-        basketRepository.save(basket);
+        entryBasket.setBillet(entryBasketToUpdate.getBillet());
+        entryBasket.setQuantity(entryBasketToUpdate.getQuantity());
+
+        basketService.updateABasket(basketId, basket);
 
         return entryBasketToUpdate;
     }

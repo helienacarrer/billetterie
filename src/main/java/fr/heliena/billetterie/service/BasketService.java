@@ -4,6 +4,7 @@ import fr.heliena.billetterie.exception.BasketIdMissmatchException;
 import fr.heliena.billetterie.exception.BasketNotFoundException;
 import fr.heliena.billetterie.model.Basket;
 import fr.heliena.billetterie.repository.BasketRepository;
+import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -11,8 +12,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-@RequiredArgsConstructor
 @Service
+@Transactional
+@RequiredArgsConstructor
 public class BasketService {
 
     private final BasketRepository basketRepository;
@@ -26,11 +28,13 @@ public class BasketService {
                 .orElseThrow(() -> new BasketNotFoundException(id));
     }
 
+    // FIXME
     public Basket addABasket(Basket basketToAdd) {
         return basketRepository.save(basketToAdd);
     }
 
     //id du path et basket mis dans body
+    // FIXME
     public Basket updateABasket(UUID id, Basket basketToUpdate) {
         if (!basketRepository.existsById(id)) {
             throw new BasketNotFoundException(id);
@@ -42,6 +46,7 @@ public class BasketService {
         return basketRepository.save(basketToUpdate);
     }
 
+    // FIXME
     public void deleteABasketById(UUID id){
         if (!basketRepository.existsById(id)){
             throw new BasketNotFoundException(id);
