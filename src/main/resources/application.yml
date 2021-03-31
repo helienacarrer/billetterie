@@ -1,5 +1,14 @@
 spring:
+
   datasource:
     url: jdbc:postgresql://localhost:15432/postgres
     username: postgres
     password: password
+
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            clientId: 1807da12994bed9859b0
+            clientSecret: 442e7b3a24085264042bd6eba338368bc28f8080
