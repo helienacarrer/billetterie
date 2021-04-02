@@ -1,7 +1,6 @@
 package fr.heliena.billetterie.service;
 
 import fr.heliena.billetterie.exception.BasketNotFoundException;
-import fr.heliena.billetterie.exception.BilletNotFoundException;
 import fr.heliena.billetterie.exception.EntryBasketNotFoundException;
 import fr.heliena.billetterie.model.Basket;
 import fr.heliena.billetterie.model.Billet;
