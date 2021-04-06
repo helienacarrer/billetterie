@@ -1,6 +1,8 @@
 package fr.heliena.billetterie.controller.mapper;
 
-import fr.heliena.billetterie.controller.dto.*;
+import fr.heliena.billetterie.controller.dto.PostRequestBasketDto;
+import fr.heliena.billetterie.controller.dto.PutRequestBasketDto;
+import fr.heliena.billetterie.controller.dto.ResponseBasketDto;
 import fr.heliena.billetterie.model.Basket;
 import org.mapstruct.Mapper;
 

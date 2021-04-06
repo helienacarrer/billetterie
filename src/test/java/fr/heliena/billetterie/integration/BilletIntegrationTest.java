@@ -1,8 +1,8 @@
 package fr.heliena.billetterie.integration;
 
-import fr.heliena.billetterie.model.Billet;
-import fr.heliena.billetterie.repository.BilletsRepository;
 import fr.heliena.billetterie.integration.utils.IntegrationTest;
+import fr.heliena.billetterie.model.Billet;
+import fr.heliena.billetterie.repository.BilletRepository;
 import io.restassured.http.ContentType;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
@@ -30,15 +30,15 @@ public class BilletIntegrationTest {
 
     //car dans tests on peut pas se faire injecter les composants dans constructeur, peut pas faire de constructeur
     @Autowired
-    BilletsRepository billetRepository;
+    BilletRepository billetRepository;
 
     @Test
     void shouldGetABilletByIdAndReturnANotFoundResponse() {
         given() // équivaut à RestAssured.given() mais importé plus haut donc pas besoin
                 .basePath("/billets")
-        .when()
+                .when()
                 .get(UUID.randomUUID().toString()) // on définit un id random donc sera pas en base
-        .then()
+                .then()
                 .statusCode(404); //not found
     }
 
@@ -49,9 +49,9 @@ public class BilletIntegrationTest {
 
         given()
                 .basePath("/billets")
-        .when()
+                .when()
                 .get(billet.getId().toString()) // id qui va être concaténé à basePath et verbe GET
-        .then()
+                .then()
                 .statusCode(200)
                 // id du body doit être égal à ce qu'il y a dans equalTo
                 .body("id", equalTo(billet.getId().toString())) //ou Matchers.equalTo si pas import
@@ -69,9 +69,9 @@ public class BilletIntegrationTest {
 
         given() // équivaut à RestAssured.given() mais importé plus haut donc pas beoin
                 .basePath("/billets")
-        .when()
+                .when()
                 .get()
-        .then()
+                .then()
                 .statusCode(200)
                 .body("size()", equalTo(2))
                 .body("$", hasItems(
@@ -100,9 +100,9 @@ public class BilletIntegrationTest {
 
         given() // équivaut à RestAssured.given() mais importé plus haut donc pas besoin
                 .basePath("/billets/limitPrice")
-        .when()
+                .when()
                 .get("60")
-        .then()
+                .then()
                 .statusCode(200)
                 .body("size()", equalTo(1))
                 .body("$", hasItems(
@@ -132,9 +132,9 @@ public class BilletIntegrationTest {
                 //dire que body est json
                 .contentType(ContentType.JSON)
                 .body(requestBody)
-        .when()
+                .when()
                 .put(billet.getId().toString())
-        .then()
+                .then()
 
                 //vérfifier la réponse http
                 .statusCode(200)
@@ -167,9 +167,9 @@ public class BilletIntegrationTest {
                 .basePath("/billets")
                 .contentType(ContentType.JSON)
                 .body(body)
-        .when()
+                .when()
                 .post()
-        .then()
+                .then()
                 .statusCode(201)
                 // un header avec une clé "location" avec valeur regex de l'id ([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})
                 //on vérifie format du header location
@@ -182,9 +182,9 @@ public class BilletIntegrationTest {
         given()
                 //pas path car aussi http, localhost...donc uri ici
                 .baseUri(location)
-        .when()
+                .when()
                 .get()
-        .then()
+                .then()
                 .statusCode(200)
                 .body("id", notNullValue()) //ou Matchers.equalTo si pas import
                 .body("name", equalTo("vielles charrues"))
@@ -206,9 +206,9 @@ public class BilletIntegrationTest {
                 .basePath("/billets")
                 .contentType(ContentType.JSON)
                 .body(body)
-        .when()
+                .when()
                 .post()
-        .then()
+                .then()
                 //quad valid fonctionne pas, ca return bad request
                 .statusCode(400);
     }
@@ -217,9 +217,9 @@ public class BilletIntegrationTest {
     void shouldDeleteABilletAndReturnANotFound() {
         given()
                 .basePath("/billets")
-        .when()
+                .when()
                 .delete(UUID.randomUUID().toString())
-        .then()
+                .then()
                 .statusCode(404);
     }
 
@@ -231,9 +231,9 @@ public class BilletIntegrationTest {
 
         given()
                 .basePath("/billets")
-        .when()
+                .when()
                 .delete(billet.getId().toString())
-        .then()
+                .then()
                 .statusCode(204);
 
         //vérifie que getId renvoie rien vu qu'on vient de le supprimer

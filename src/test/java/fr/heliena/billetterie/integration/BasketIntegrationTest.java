@@ -1,12 +1,12 @@
 package fr.heliena.billetterie.integration;
 
+import fr.heliena.billetterie.integration.utils.IntegrationTest;
 import fr.heliena.billetterie.model.Basket;
 import fr.heliena.billetterie.model.Billet;
 import fr.heliena.billetterie.model.EntryBasket;
 import fr.heliena.billetterie.model.Status;
 import fr.heliena.billetterie.repository.BasketRepository;
-import fr.heliena.billetterie.repository.BilletsRepository;
-import fr.heliena.billetterie.integration.utils.IntegrationTest;
+import fr.heliena.billetterie.repository.BilletRepository;
 import io.restassured.http.ContentType;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
@@ -33,15 +33,15 @@ public class BasketIntegrationTest {
     BasketRepository basketRepository;
 
     @Autowired
-    BilletsRepository billetsRepository;
+    BilletRepository billetRepository;
 
     @Test
-    void shouldGetABasketByIdAndReturnANotFoundResponse () {
+    void shouldGetABasketByIdAndReturnANotFoundResponse() {
         given()
                 .basePath("/baskets")
-        .when()
+                .when()
                 .get(UUID.randomUUID().toString()) // on définit un id random donc sera pas en base
-        .then()
+                .then()
                 .statusCode(404); //not found
     }
 
@@ -51,9 +51,9 @@ public class BasketIntegrationTest {
 
         given()
                 .basePath("/baskets")
-        .when()
+                .when()
                 .get(basket.getId().toString()) // id qui va être concaténé à basePath et verbe GET
-        .then()
+                .then()
                 .statusCode(200)
                 .body("id", equalTo(basket.getId().toString())) //ou Matchers.equalTo si pas import
                 .body("status", equalTo(Status.VALIDE.toString()))
@@ -62,14 +62,14 @@ public class BasketIntegrationTest {
 
     @Test
     void shouldGetABasketByIdAndReturnABasket() {
-        Billet billet = billetsRepository.save(new Billet(null, "vielles charrues", 70.0, 100, 50));
+        Billet billet = billetRepository.save(new Billet(null, "vielles charrues", 70.0, 100, 50));
         Basket basket = basketRepository.save(new Basket(null, Status.VALIDE, List.of(new EntryBasket(null, billet, 1), new EntryBasket(null, billet, 4))));
 
         given()
                 .basePath("/baskets")
-        .when()
+                .when()
                 .get(basket.getId().toString()) // id qui va être concaténé à basePath et verbe GET
-        .then()
+                .then()
                 .statusCode(200)
                 .body("id", equalTo(basket.getId().toString())) //ou Matchers.equalTo si pas import
                 .body("status", equalTo(Status.VALIDE.toString()))
@@ -80,9 +80,9 @@ public class BasketIntegrationTest {
     void shouldDeleteABasketAndReturnANotFound() {
         given()
                 .basePath("/baskets")
-        .when()
+                .when()
                 .delete(UUID.randomUUID().toString())
-        .then()
+                .then()
                 .statusCode(404);
     }
 
@@ -92,9 +92,9 @@ public class BasketIntegrationTest {
 
         given()
                 .basePath("/baskets")
-        .when()
+                .when()
                 .delete(basket.getId().toString())
-        .then()
+                .then()
                 .statusCode(204);
 
         assertFalse(basketRepository.existsById(basket.getId()));
@@ -112,9 +112,9 @@ public class BasketIntegrationTest {
                 .basePath("/baskets")
                 .contentType(ContentType.JSON)
                 .body(requestBody)
-        .when()
+                .when()
                 .put(basket.getId().toString())
-        .then()
+                .then()
                 //vérfier la réponse http
                 .statusCode(200)
                 .body("id", equalTo(basket.getId().toString())) //ou Matchers.equalTo si pas import
@@ -139,9 +139,9 @@ public class BasketIntegrationTest {
                 .basePath("/baskets")
                 .contentType(ContentType.JSON)
                 .body(basket)
-        .when()
+                .when()
                 .post()
-        .then()
+                .then()
                 .statusCode(201)
                 // un header avec une clé "location" avec valeur regex de l'id ([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})
                 //on vérifie format du header location
@@ -154,9 +154,9 @@ public class BasketIntegrationTest {
         given()
                 //pas path car aussi http, localhost...donc uri ici
                 .baseUri(location)
-        .when()
+                .when()
                 .get()
-        .then()
+                .then()
                 .statusCode(200)
                 .body("id", notNullValue()) //ou Matchers.equalTo si pas import
                 //car restAssured veut des string pas des enum
@@ -165,7 +165,7 @@ public class BasketIntegrationTest {
     }
 
     @Test
-    void shouldNotCreateABasketIfValidationFails()  {
+    void shouldNotCreateABasketIfValidationFails() {
         // tester que valid marche pas si met nom vide
         Basket basket = new Basket(null, null, List.of());
 
@@ -173,9 +173,9 @@ public class BasketIntegrationTest {
                 .basePath("/baskets")
                 .contentType(ContentType.JSON)
                 .body(basket)
-        .when()
+                .when()
                 .post()
-        .then()
+                .then()
                 //quad valid fonctionne pas, ca return bad request
                 .statusCode(400);
     }
@@ -188,9 +188,9 @@ public class BasketIntegrationTest {
 
         given() // équivaut à RestAssured.given() mais importé plus haut donc pas besoin
                 .basePath("/baskets")
-        .when()
+                .when()
                 .get()
-        .then()
+                .then()
                 .statusCode(200)
                 .body("size()", equalTo(2))
                 //$ est racine du body (première accolade)

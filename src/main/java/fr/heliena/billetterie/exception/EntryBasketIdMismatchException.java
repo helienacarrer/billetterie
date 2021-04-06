@@ -7,7 +7,9 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @Getter
-public class EntryBasketIdMissmatchException extends RuntimeException {
+public class EntryBasketIdMismatchException extends RuntimeException {
+
     private final UUID bodyId;
     private final UUID pathId;
+
 }
