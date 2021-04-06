@@ -9,5 +9,7 @@ import java.util.UUID;
 @RequiredArgsConstructor //constructeur avec que les arg final
 @Getter
 public class EntryBasketNotFoundException extends RuntimeException {
+
     private final UUID id;
+
 }

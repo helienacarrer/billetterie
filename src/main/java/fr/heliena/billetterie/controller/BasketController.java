@@ -3,7 +3,6 @@ package fr.heliena.billetterie.controller;
 import fr.heliena.billetterie.controller.dto.PostRequestBasketDto;
 import fr.heliena.billetterie.controller.dto.PutRequestBasketDto;
 import fr.heliena.billetterie.controller.dto.ResponseBasketDto;
-import fr.heliena.billetterie.controller.dto.ResponseBilletDto;
 import fr.heliena.billetterie.controller.mapper.BasketMapper;
 import fr.heliena.billetterie.model.Basket;
 import fr.heliena.billetterie.service.BasketService;
@@ -26,7 +25,7 @@ public class BasketController {
     private final BasketMapper basketMapper;
 
     @GetMapping
-    public ResponseEntity<List<ResponseBasketDto>> getAllBaskets(){
+    public ResponseEntity<List<ResponseBasketDto>> getAllBaskets() {
         List<Basket> result = basketService.getAllBaskets();
         return ResponseEntity.ok(basketMapper.toDto(result));
     }
@@ -38,7 +37,7 @@ public class BasketController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> addABasket(@Valid @RequestBody PostRequestBasketDto basketToAdd){
+    public ResponseEntity<Void> addABasket(@Valid @RequestBody PostRequestBasketDto basketToAdd) {
         Basket result = basketService.addABasket(basketMapper.toModel(basketToAdd));
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -50,12 +49,12 @@ public class BasketController {
     }
 
     @PutMapping("/{id}")
-    public ResponseBasketDto updateABasket(@PathVariable UUID id, @Valid @RequestBody  PutRequestBasketDto basketToUpdate){
+    public ResponseBasketDto updateABasket(@PathVariable UUID id, @Valid @RequestBody PutRequestBasketDto basketToUpdate) {
         return basketMapper.toDto(basketService.updateABasket(id, basketMapper.toModel(basketToUpdate)));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteABasketById(@PathVariable UUID id){
+    public ResponseEntity<Void> deleteABasketById(@PathVariable UUID id) {
         basketService.deleteABasketById(id);
         return ResponseEntity.noContent().build();
 

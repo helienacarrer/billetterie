@@ -6,7 +6,7 @@ import fr.heliena.billetterie.controller.dto.PutRequestBilletDto;
 import fr.heliena.billetterie.controller.dto.ResponseBilletDto;
 import fr.heliena.billetterie.controller.mapper.BilletMapper;
 import fr.heliena.billetterie.model.Billet;
-import fr.heliena.billetterie.service.BilletsService;
+import fr.heliena.billetterie.service.BilletService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +22,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class BilletController {
 
-    private final BilletsService billetsService;
+    private final BilletService billetService;
     private final BilletMapper billetMapper;
 
     /////////////////////////////////////////// getById
@@ -36,7 +36,7 @@ public class BilletController {
     @GetMapping
     public ResponseEntity<List<ResponseBilletDto>> getAllBillets() {
         // service return une liste
-        List<Billet> result = this.billetsService.getAllBillets();
+        List<Billet> result = this.billetService.getAllBillets();
         // controller renvoie responseEntity
         return ResponseEntity.ok(billetMapper.toDto(result));
     }
@@ -45,7 +45,7 @@ public class BilletController {
     ///////////////// facon avec une exception
     @GetMapping("/{id}")
     public ResponseEntity<ResponseBilletDto> getBilletById(@PathVariable UUID id) {
-        Billet billet = this.billetsService.getBilletById(id);
+        Billet billet = this.billetService.getBilletById(id);
         return ResponseEntity.ok(billetMapper.toDto(billet));
     }
 
@@ -80,13 +80,13 @@ public class BilletController {
 
     @GetMapping("/limitPrice/{priceLimit}")
     public ResponseEntity<List<ResponseBilletDto>> findABilletByPrice(@PathVariable double priceLimit) {
-        List<Billet> result = billetsService.findABilletByPrice(priceLimit);
+        List<Billet> result = billetService.findABilletByPrice(priceLimit);
         return ResponseEntity.ok(billetMapper.toDto(result));
     }
 
     @PostMapping
     public ResponseEntity<Void> addOneBillet(@Valid @RequestBody PostRequestBilletDto billetToAdd) {
-        Billet billet = this.billetsService.addOneBillet(billetMapper.toModel(billetToAdd));
+        Billet billet = this.billetService.addOneBillet(billetMapper.toModel(billetToAdd));
         // créer URI qui est une url de la ressource qu'on vient de créer
         //builder = on donne toutes infos pour créer URI grace au toUri
         URI location = ServletUriComponentsBuilder
@@ -104,12 +104,12 @@ public class BilletController {
 
     @PutMapping("/{id}")
     public ResponseBilletDto updateOneBillet(@PathVariable UUID id, @Valid @RequestBody PutRequestBilletDto billetToUpdate) {
-        return billetMapper.toDto(this.billetsService.updateOneBillet(id, billetMapper.toModel(billetToUpdate)));
+        return billetMapper.toDto(this.billetService.updateOneBillet(id, billetMapper.toModel(billetToUpdate)));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteOneBillet(@PathVariable UUID id) {
-        this.billetsService.deleteOneBillet(id);
+        this.billetService.deleteOneBillet(id);
         return ResponseEntity.noContent().build();
     }
 
